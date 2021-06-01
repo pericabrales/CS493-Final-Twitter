@@ -1,0 +1,17 @@
+version: "3"
+services:
+  mongodb:
+    container_name: twitterMongo
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pass
+      MONGO_INITDB_DATABASE: twitter-data
+    volumes:
+      - twitterMongo:/data/db
+      - ./docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+volumes:
+    twitterMongo:
