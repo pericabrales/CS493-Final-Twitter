@@ -12,10 +12,14 @@ const dmSchema = new mongoose.Schema({
 		ref: "User",
 		required: true,
 	},
-    // Leaving out messages for now; I've gotta figure out how to set this part up.
-
+	messages: [
+		{
+			senderid: { type: Schema.Types.ObjectId, ref: "User", required: true },
+			message: { type: String, required: true },
+			date: {type: Date, required: true}
+		},
+	],
 });
-
 
 const DM = mongoose.model("DM", dmSchema);
 module.exports = DM;

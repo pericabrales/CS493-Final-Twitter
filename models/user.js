@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const passportLocalMongoose = require("passport-local-mongoose");
 const Schema = mongoose.Schema;
 
 const userSchema = new mongoose.Schema({
@@ -13,14 +14,17 @@ const userSchema = new mongoose.Schema({
 	email: {
 		type: String,
 		required: true,
+		unique: true
 	},
-	// I'm going to skip images for now
+	images: [{ url: String, filename: String }],
 	favorites: [{ type: Schema.Types.ObjectId, ref: "Tweet" }],
 	tweets: [{ type: Schema.Types.ObjectId, ref: "Tweet" }],
 	followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
 	following: [{ type: Schema.Types.ObjectId, ref: "User" }],
 	DMs: [{ type: Schema.Types.ObjectId, ref: "DM" }],
 });
+
+userSchema.plugin(passportLocalMongoose);
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;
