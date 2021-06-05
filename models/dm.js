@@ -16,7 +16,7 @@ const dmSchema = new mongoose.Schema({
 		{
 			senderid: { type: Schema.Types.ObjectId, ref: "User", required: true },
 			message: { type: String, required: true },
-			date: {type: Date, required: true}
+			date: { type: Date, required: true },
 		},
 	],
 });

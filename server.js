@@ -10,6 +10,7 @@ const home = require("./routes/home");
 const messages = require("./routes/messages");
 const users = require("./routes/users");
 const favorites = require("./routes/favorites");
+const images = require("./routes/images");
 const { mongoURL } = require("./lib/mongo");
 const ExpressError = require("./utils/ExpressError");
 const passport = require("passport");
@@ -19,8 +20,6 @@ const session = require("express-session");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-
 
 const sessionConfig = {
 	secret: "teenagemutantninjaturtles",
@@ -63,6 +62,7 @@ app.use("/tweets", tweets);
 app.use("/favorites", favorites);
 app.use("/users", users);
 app.use("/messages", messages);
+app.use("/images", images);
 
 app.all("*", (req, res, next) => {
 	next(new ExpressError("Page Not Found", 404));
