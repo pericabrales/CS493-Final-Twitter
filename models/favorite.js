@@ -8,7 +8,7 @@ async function getAllUsersFaves(id, page){
     console.log("user: ", user);
 
     //check to make sure the favorites isn't null
-    if(user.favorites.count){
+    //if(user.favorites.count){
         console.log("user favorites: ", user.favorites);
         //need pagination (just the page thing)
         console.log("favorites count", user.favorites.count);
@@ -18,26 +18,28 @@ async function getAllUsersFaves(id, page){
         page = page > lastPage ? lastPage : page;
         page = page < 1 ? 1 : page;
         const offset = (page - 1) * pageSize;
-        const arraySplit = user.favorites.slice(offset, (page*pageSize));
+        //const arraySplit = user.favorites.slice(offset, (page*pageSize));
+        const results = await User.findById(id).populate('favorites').slice(offset, (page*pageSize));
 
         return{
-            favorites: arraySplit,
+            favorites: results,
             page: page,
             totalPages: lastPage,
             pageSize: pageSize,
             count: count
         };
-    }
+    //}
     //if its an empty array, just send back 0s and stuff to make it not look gross
-    else{
-        return{
-            favorites: [],
-            page: 0,
-            totalPages: 0,
-            pageSize: 0,
-            count: 0
-        };
-    }
+    // else{
+    //     console.log("in else");
+    //     return{
+    //         favorites: [],
+    //         page: 0,
+    //         totalPages: 0,
+    //         pageSize: 0,
+    //         count: 0
+    //     };
+    // }
 }
 exports.getAllUsersFaves = getAllUsersFaves;
 
