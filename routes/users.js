@@ -4,9 +4,20 @@ const multer = require("multer");
 const { storage } = require("../cloudinary");
 const upload = multer({ storage });
 const User = require("../models/user");
+const Tweet = require("../models/tweet");
 const catchAsync = require("../utils/catchAsync");
 const passport = require("passport");
 const { isLoggedInReject, isLoggedInAccept } = require("../middleware");
+
+const getUserInfo = async (id) => {
+	const user = await User.findById(id)
+		.populate("images")
+		.populate({ path: "favorites", model: Tweet })
+		.populate("followers")
+		.populate("following");
+
+	return user;
+};
 
 router.get("/", isLoggedInReject, (req, res) => {
 	res.send("testing logged in functions");
@@ -15,15 +26,15 @@ router.get("/", isLoggedInReject, (req, res) => {
 router.post(
 	"/register",
 	catchAsync(async (req, res) => {
+		console.log(req.body);
 		const user = new User({
 			email: req.body.email,
 			username: req.body.username,
 			phone: req.body.phone,
 			birth_date: req.body.birth_date,
+			firstName: req.body.firstName,
+			lastName: req.body.lastName,
 		});
-		console.log(req.body.username);
-		console.log(req.body.password);
-		console.log(typeof req.body.username);
 		const newUser = await User.register(user, req.body.password);
 		res.send(newUser);
 	})
@@ -34,16 +45,25 @@ router.post("/login", passport.authenticate("local"), (req, res) => {
 	res.send("Logged in successfully!");
 });
 
-router.get("/:id", async (req, res, next) => {
-	const results = await User.findById(id)
-		.populate("images")
-		.populate("favorites")
-		.populate("followers")
-		.populate("following");
-	if (!results) {
-		return next();
+router.get("/:id", isLoggedInAccept, async (req, res, next) => {
+	if (req.logged === true && req.user._id.toString() === req.params.id) {
+		const results = await getUserInfo(req.params.id);
+		if (!results) {
+			return next();
+		}
+		res.status(200).json(results);
+	} else {
+		const results = await getUserInfo(req.params.id);
+		res.status(200).json({
+			FirstName: results.firstName,
+			LastName: results.lastName,
+			birth_date: results.birth_date,
+			images: results.images,
+			favorites: results.favorites,
+			following: results.following,
+			followers: results.followers,
+		});
 	}
-	res.status(200).json(results);
 });
 
 router.patch(
@@ -70,7 +90,10 @@ router.delete(
 
 router.get(
 	"/:id/images",
-	catchAsync(async (req, res, next) => {})
+	catchAsync(async (req, res, next) => {
+		const user = await User.findById(req.params.id).populate("images");
+		res.status(200).json(user.images);
+	})
 );
 
 module.exports = router;

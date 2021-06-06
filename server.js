@@ -74,6 +74,7 @@ app.use((err, req, res, next) => {
 	if (!err.message) {
 		err.message = "Something went wrong.";
 	}
+	console.log(err)
 	console.log("status Code: ", statusCode);
 	res.status(statusCode).json({ error: err });
 });
