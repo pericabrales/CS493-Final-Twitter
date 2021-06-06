@@ -1,11 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const passport = require("passport");
+
 const User = require("../models/user");
-const Tweet = require("../models/tweet");
-const { getAllUsersFaves, insertTweetToFave } = require("../models/favorite");
+const { getAllUsersFaves} = require("../models/favorite");
 const catchAsync = require("../utils/catchAsync");
-const { isLoggedInReject, isLoggedInAccept } = require("../middleware");
+const { isLoggedInReject } = require("../middleware");
 
 //get request for listing a user's favorite tweets (should be in an array)
 router.get("/", isLoggedInReject, catchAsync( async(req, res) => {
@@ -31,6 +30,16 @@ router.get("/", isLoggedInReject, catchAsync( async(req, res) => {
 //should also update the tweet's favorites array (I think)
 router.post('/:tweetid', isLoggedInReject, catchAsync(async(req, res) => {
   console.log("user id: ", req.user.id);
+
+  //try to find the tweet in the user's favorites
+  const findFave = await User.findById(req.user.id).findOne({favorites: {_id: req.params.tweetid}})
+  //do not allow multiple favorites of the same tweet
+  if(findFave){
+    res.status(405).send({
+      error: "That tweet has already been favorited, you can't favorite it again."
+    });
+  }
+  else{
     //insert the new tweet to favorite array
     await User.updateOne({_id: req.user.id},
       {$push: {favorites: req.params.tweetid}}
@@ -42,18 +51,28 @@ router.post('/:tweetid', isLoggedInReject, catchAsync(async(req, res) => {
         favoriteTweet: `/tweets/${req.params.tweetid}`
       }
     });
+  }
 }));
 
 //delete request for unfavoriting a tweet by id
 router.delete('/:tweetid', isLoggedInReject, catchAsync(async(req, res) => {
   console.log("user id: ", req.user.id);
 
-  //delete tweet from favorite array
-  await User.updateOne({_id: req.user.id},
-    {$pull: {favorites: req.params.tweetid}}
-);
-
-res.status(204).end();
+    //try to find the tweet in the user's favorites
+    const findFave = await User.findById(req.user.id).findOne({favorites: {_id: req.params.tweetid}})
+    //only allow a delete if the tweet can be found
+    if(findFave){
+      //delete tweet from favorite array
+      await User.updateOne({_id: req.user.id},
+        {$pull: {favorites: req.params.tweetid}}
+      );
+      res.status(200).send("Tweet has been removed from the favorites array");
+    }
+    else{
+      res.status(405).send({
+        error: "That tweet doesn't exist in the favorites array, and therefore can't be deleted."
+      });
+    }
 
 }));
 
