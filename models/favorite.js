@@ -7,6 +7,8 @@ async function getAllUsersFaves(id, page){
     const user = await User.findById(id);
     console.log("user: ", user);
 
+    //CANNOT TEST IF STATEMENT UNTIL TWEETS ARE SET UP
+
     //check to make sure the favorites isn't null
     //if(user.favorites.count){
         console.log("user favorites: ", user.favorites);
@@ -18,11 +20,15 @@ async function getAllUsersFaves(id, page){
         page = page > lastPage ? lastPage : page;
         page = page < 1 ? 1 : page;
         const offset = (page - 1) * pageSize;
-        //const arraySplit = user.favorites.slice(offset, (page*pageSize));
-        const results = await User.findById(id).populate('favorites').slice(offset, (page*pageSize));
+        const arraySplit = user.favorites.slice(offset, (page*pageSize));
 
+        //Populate isn't showing just the user's favorites array, so try again when we have tweets
+
+        // const results = await User.findById(id).populate('favorites').slice(offset, (page*pageSize));
+        //const results = user.populate("favorites");
+        console.log("results: ", results);
         return{
-            favorites: results,
+            favorites: arraySplit,
             page: page,
             totalPages: lastPage,
             pageSize: pageSize,
@@ -50,12 +56,15 @@ async function insertTweetToFave(userid, tweetid){
     //get the tweet by id
     const tweet = await Tweet.findById(tweetid);
 
+    //found online
+    const result = await user.update({_id: userid},
+        {$push: {favorites: tweet}},
+        done
+    );
+
     //insert the tweet into the the user's favorites array
-    user.favorites.push(tweet);
+    //user.favorites.push(tweet);
 
-    //get the index that the tweet was just pushed into (will be the last index always)
-    const indexNum = user.favorites.count - 1;
-
-    return indexNum;
+    return result;
 }
 exports.insertTweetToFave = insertTweetToFave;
