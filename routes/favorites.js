@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const passport = require('passport');
+const passport = require("passport");
 const User = require("../models/user");
 const Tweet = require("../models/tweet");
 const { getAllUsersFaves, insertTweetToFave } = require("../models/favorite");
