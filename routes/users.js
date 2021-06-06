@@ -31,11 +31,12 @@ router.post(
 
 router.post("/login", passport.authenticate("local"), (req, res) => {
 	console.log(req.body);
+	console.log(req.user.id)
 	res.send("Logged in successfully!");
 });
 
 router.get("/:id", async (req, res, next) => {
-	const results = await User.findById(id)
+	const results = await User.findById(req.params.id)
 		.populate("images")
 		.populate("favorites")
 		.populate("followers")
