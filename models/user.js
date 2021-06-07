@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema({
 	images: [{ url: String, filename: String }],
 	favorites: [{ type: Schema.Types.ObjectId, ref: "Tweet" }],
 	tweets: [{ type: Schema.Types.ObjectId, ref: "Tweet" }],
+	tweetsCount: { type: Number, default: 0, },
 	followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
 	following: [{ type: Schema.Types.ObjectId, ref: "User" }],
 	DMs: [{ type: Schema.Types.ObjectId, ref: "DM" }],
