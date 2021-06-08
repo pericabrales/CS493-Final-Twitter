@@ -5,20 +5,21 @@ const { storage } = require("../cloudinary");
 const upload = multer({ storage });
 const User = require("../models/user");
 const catchAsync = require("../utils/catchAsync");
-const passport = require("passport");
 const { isLoggedInReject, isLoggedInAccept } = require("../middleware");
-const { findByIdAndUpdate } = require("../models/user");
-const mongoose = require("mongoose");
+
+
 const { cloudinary } = require("../cloudinary");
 
-router.get("/:id", async (req, res, next) => {
+// Get an image
+router.get("/:id", catchAsync(async (req, res, next) => {
 	let image = await User.findOne(
 		{ "images._id": req.params.id },
 		{ "images.$": 1 }
 	);
 	res.status(200).json(image.images[0]);
-});
+}));
 
+//Upload an image
 router.post(
 	"/",
 	upload.array("image"),
@@ -33,10 +34,11 @@ router.post(
 				new: true,
 			}
 		);
-		res.status(200).json(user);
+		res.status(201).json(user);
 	})
 );
 
+// Delete an image
 router.delete(
 	"/:id",
 	isLoggedInReject,

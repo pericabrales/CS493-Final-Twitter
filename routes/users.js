@@ -42,6 +42,7 @@ router.get("/", isLoggedInReject, (req, res) => {
 	res.send("testing logged in functions");
 });
 
+// Create a user
 router.post(
 	"/register",
 	catchAsync(async (req, res) => {
@@ -55,15 +56,17 @@ router.post(
 			lastName: req.body.lastName,
 		});
 		const newUser = await User.register(user, req.body.password);
-		res.send(newUser);
+		res.status(201).json(newUser)
 	})
 );
 
+// Log in
 router.post("/login", passport.authenticate("local"), (req, res) => {
 	console.log(req.body);
 	res.send("Logged in successfully!");
 });
 
+// Get a user
 router.get(
 	"/:id",
 	isLoggedInAccept,
@@ -89,6 +92,7 @@ router.get(
 	})
 );
 
+// Edit a user
 router.patch(
 	"/:id",
 	isLoggedInReject,
@@ -105,12 +109,14 @@ router.patch(
 	})
 );
 
+// Delete a user
 router.delete(
 	"/:id",
 	isLoggedInReject,
 	catchAsync(async (req, res, next) => {})
 );
 
+// Get all images of a user.
 router.get(
 	"/:id/images",
 	catchAsync(async (req, res, next) => {
@@ -119,6 +125,7 @@ router.get(
 	})
 );
 
+// Get all dms of a user.
 router.get(
 	"/:id/dms",
 	catchAsync(async (req, res, next) => {

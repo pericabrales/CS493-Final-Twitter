@@ -47,13 +47,13 @@ router.post(
 				],
 			});
 			console.log(dm);
+			dm.save();
 			await User.updateOne({ _id: req.user._id }, { $push: { DMs: dm._id } });
 			await User.updateOne(
 				{ _id: req.body.userId },
 				{ $push: { DMs: dm._id } }
 			);
-			dm.save();
-			res.send("saved");
+			res.status(201).json(dm);
 		}
 	})
 );
@@ -74,7 +74,7 @@ router.post(
 		);
 		console.log(result);
 
-		res.status(200).json(result);
+		res.status(201).json(result);
 	})
 );
 
@@ -84,7 +84,7 @@ router.get(
 	isLoggedInReject,
 	catchAsync(async (req, res) => {
 		const dm = await DM.findOne({ _id: req.params.id });
-		res.send(dm);
+		res.status(200).json(dm);
 	})
 );
 
@@ -100,7 +100,7 @@ router.get(
 	"/user/:username",
 	catchAsync(async (req, res) => {
 		const user = await User.findOne({ username: req.params.username });
-		res.send(user);
+		res.status(200).json(user);
 	})
 );
 
