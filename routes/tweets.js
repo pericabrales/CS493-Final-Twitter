@@ -8,6 +8,7 @@ const Tweet = require("../models/tweet");
 const catchAsync = require("../utils/catchAsync");
 const passport = require("passport");
 const { isLoggedInReject, isLoggedInAccept } = require("../middleware");
+const Mongoose = require('mongoose');
 
 
 // get the array of the user's tweets by the user's id
@@ -50,23 +51,19 @@ router.get("/", isLoggedInReject, catchAsync(async(req, res) => {
 
 
 // return a tweet by its id
-/* router.get("/:tweetid", isLoggedInReject, catchAsync(async(req, res) => {
+ router.get("/:id", isLoggedInAccept, catchAsync(async(req, res) => {
 	console.log("You're going to get the tweets by tweet's id");
-	console.log("Tweet's id is ", req.params.tweetid);
-
-  const findTweet = await User.findById(req.user.id).findOne({"tweets._id": req.params.tweetid}, {"tweets.$": 1});
-	console.log("Expected: ", User.tweets.findOne({_id: ObjectId('60bde4cc6c99d96e5ce6d3c4')}));
+	const findTweet = await Tweet.findOne({_id: req.params.id});
 	if(findTweet) {
-    res.status(400).send({
-    	error: "No tweet was found with such id."
-    });
-  }
-  else {
-		console.log(findTweet);
 		res.status(200).json(findTweet);
-  }
+	}
+	else {
+		res.status(400).send({
+			error: "No tweet for you"
+		});
+	}
 }));
-*/
+
 
 // create a tweet
 router.post('/', isLoggedInReject, catchAsync(async(req, res) => {
@@ -87,6 +84,40 @@ router.post('/', isLoggedInReject, catchAsync(async(req, res) => {
 	else {
 		res.status(400).send({
 			error: "No tweet for you"
+		});
+	}
+}));
+
+// update a tweet
+router.put('/:id', isLoggedInReject, catchAsync(async(req, res) => {
+  console.log("You're about to update your tweet");
+	const result = await Tweet.findByIdAndUpdate({_id: req.params.id}, req.body, {
+                    runValidators: true,
+                    new: true,
+                });
+
+	if(result) {
+		console.log("Inside find tweet update");
+		res.status(200).json(result);
+	}
+	else {
+		res.status(400).send({
+			error: "No tweet for you"
+		});
+	}
+}));
+
+
+// delete a tweet
+router.delete("/:id", isLoggedInReject, catchAsync(async (req, res, next) => {
+		const result = await Tweet.findByIdAndDelete({_id: req.params.id});
+
+		if(result) {
+			res.status(200).send("Tweet has been deleted successfully.");
+		}
+		else {
+			res.status(405).send({
+				error: "That tweet doesn't exist."
 		});
 	}
 }));
