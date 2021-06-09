@@ -9,7 +9,7 @@ const checkIfAlreadyMessaged = require("../models/dm");
 const e = require("express");
 
 router.get("/", (req, res) => {
-	res.send("Messages");
+  res.send("Messages");
 });
 
 //This creates a new dm/conversation between two users.  We should probably check to  make sure one doesn't already exist
@@ -33,30 +33,34 @@ router.post(
         });
       });
 
-		if (messagesBetween) {
-			return res.send("Already a DM between those two users");
-		} else {
-			const dm = new DM({
-				userid1: req.user._id,
-				userid2: req.body.userId,
-				messages: [
-					{
-						senderid: req.user._id,
-						message: req.body.message,
-						date: req.body.date,
-					},
-				],
-			});
-			console.log(dm);
-			dm.save();
-			await User.updateOne({ _id: req.user._id }, { $push: { DMs: dm._id } });
-			await User.updateOne(
-				{ _id: req.body.userId },
-				{ $push: { DMs: dm._id } }
-			);
-			res.status(201).json(dm);
-		}
-	})
+      if(messagesBetween){
+        return res.send("Already a DM between those two users")
+      }
+
+      else{
+
+      
+      const dm = new DM({
+        userid1: req.user._id,
+        userid2: req.body.userId,
+        messages: [
+          {
+            senderid: req.user._id,
+            message: req.body.message,
+            date: req.body.date,
+          },
+        ],
+      });
+      console.log(dm);
+      await User.updateOne({ _id: req.user._id }, { $push: { DMs: dm._id } });
+      await User.updateOne(
+        { _id: req.body.userId },
+        { $push: { DMs: dm._id } }
+      );
+      dm.save();
+      res.send("saved");
+      }
+  })
 );
 
 // This adds a message to an ongoing DM/conversation
@@ -75,18 +79,18 @@ router.post(
     );
     console.log(result);
 
-		res.status(201).json(result);
-	})
+    res.status(200).json(result);
+  })
 );
 
 // This retrieves a conversation
 router.get(
-	"/:id",
-	isLoggedInReject,
-	catchAsync(async (req, res) => {
-		const dm = await DM.findOne({ _id: req.params.id });
-		res.status(200).json(dm);
-	})
+  "/:id",
+  isLoggedInReject,
+  catchAsync(async (req, res) => {
+    const dm = await DM.findOne({ _id: req.params.id });
+    res.send(dm);
+  })
 );
 
 // router.get(
@@ -98,11 +102,11 @@ router.get(
 // );
 
 router.get(
-	"/user/:username",
-	catchAsync(async (req, res) => {
-		const user = await User.findOne({ username: req.params.username });
-		res.status(200).json(user);
-	})
+  "/user/:username",
+  catchAsync(async (req, res) => {
+    const user = await User.findOne({ username: req.params.username });
+    res.send(user);
+  })
 );
 
 module.exports = router;
