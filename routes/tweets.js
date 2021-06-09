@@ -2,11 +2,11 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const { storage } = require("../cloudinary");
-const upload = multer({ storage });
+
 const User = require("../models/user");
 const Tweet = require("../models/tweet");
 const catchAsync = require("../utils/catchAsync");
-const passport = require("passport");
+
 const { isLoggedInReject, isLoggedInAccept } = require("../middleware");
 const Mongoose = require('mongoose');
 
@@ -121,11 +121,5 @@ router.delete("/:id", isLoggedInReject, catchAsync(async (req, res, next) => {
 		});
 	}
 }));
-
-
-
-
-
-
 
 module.exports = router;
