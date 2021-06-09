@@ -20,7 +20,9 @@ const getUserInfo = async (id) => {
 };
 
 const getDmsPage = async (page, id) => {
+	console.log("test");
 	const user = await User.findById(id).populate("DMs");
+	console.log(user.DMs);
 	const count = user.DMs.length;
 	const pageSize = 10;
 	const lastPage = Math.ceil(count / pageSize);
@@ -38,10 +40,12 @@ const getDmsPage = async (page, id) => {
 	// return {shit: "shit"}
 };
 
-router.get("/", isLoggedInReject, (req, res) => {
-	res.send("testing logged in functions");
-});
-
+// router.get("/dms", isLoggedInReject, catchAsync(async (req, res, next) => {
+// 	console.log("MOTHERFUCKER");
+// 	const dmsPage = await getDmsPage(parseInt(req.query.page) || 1, req.user.id);
+// 	console.log(dmsPage);
+// 	res.status(200).json(dmsPage);
+// }));
 // Create a user
 router.post(
 	"/register",
@@ -56,7 +60,7 @@ router.post(
 			lastName: req.body.lastName,
 		});
 		const newUser = await User.register(user, req.body.password);
-		res.status(201).json(newUser)
+		res.status(201).json(newUser);
 	})
 );
 
@@ -119,17 +123,18 @@ router.delete(
 // Get all images of a user.
 router.get(
 	"/:id/images",
+	isLoggedInReject,
 	catchAsync(async (req, res, next) => {
 		const user = await User.findById(req.params.id).populate("images");
 		res.status(200).json(user.images);
 	})
 );
 
-// Get all dms of a user.
 router.get(
 	"/:id/dms",
+	isLoggedInReject,
 	catchAsync(async (req, res, next) => {
-		console.log(req.params.id);
+		console.log("MOTHERFUCKER");
 		const dmsPage = await getDmsPage(
 			parseInt(req.query.page) || 1,
 			req.params.id
